@@ -1,87 +1,81 @@
-Epidemic Simulation Model
-This repository contains a Python-based SEIR epidemic simulation with optional intervention strategies including quarantine, masking, vaccination, and social distancing. The simulation tracks the population through different health states and allows for analysis of intervention effectiveness.
+\documentclass[11pt]{article}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\geometry{margin=1in}
+\title{Epidemic Simulation Model Documentation}
+\author{}
+\date{}
 
-📦 Features
-SEIR Model: Susceptible → Exposed → Infectious → Recovered dynamics
+\begin{document}
 
-Intervention Capabilities:
+\maketitle
 
-Quarantine (by day or infection threshold)
+\section*{Overview}
 
-Masking (adjustable effectiveness)
+This document describes a Python-based SEIR epidemic simulation model that includes optional interventions such as quarantine, masking, vaccination, and social distancing. The simulation is designed to track epidemic spread and evaluate the effectiveness of interventions across multiple simulation runs.
 
-Vaccination (with rollout delay and rate)
+\section*{Features}
 
-Social Distancing (reduced contact rate)
+\begin{itemize}
+    \item \textbf{SEIR States:} Susceptible, Exposed, Infectious, Recovered
+    \item \textbf{Intervention Options:}
+    \begin{itemize}
+        \item Quarantine (triggered by time or infection threshold)
+        \item Masking (with adjustable effectiveness)
+        \item Vaccination (with start time and rollout rate)
+        \item Social Distancing (reduces contact rate)
+    \end{itemize}
+    \item \textbf{Data Output:}
+    \begin{itemize}
+        \item CSV and SQLite database output
+        \item Time-series plot of compartment values
+    \end{itemize}
+\end{itemize}
 
-Data Output:
+\section*{Simulation Parameters}
 
-Exports results to CSV
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parameter} & \textbf{Description} \\
+\hline
+\texttt{N} & Total population size \\
+\texttt{init\_infected} & Initial number of infected individuals \\
+\texttt{init\_exposed} & Initial number of exposed individuals \\
+\texttt{days} & Duration of the simulation in days \\
+\texttt{beta} & Probability of infection per contact \\
+\texttt{sigma} & Transition rate from exposed to infectious \\
+\texttt{gamma} & Recovery rate \\
+\texttt{act\_rate} & Number of contacts per individual per day \\
+\hline
+\end{tabular}
 
-Optionally saves to SQLite using DatabaseManager
+\section*{Usage Instructions}
 
-Visualization: Time-series plots of all health states
-
-🧪 Simulation Parameters
-Parameter	Description
-N	Total population size
-init_infected	Initial number of infectious individuals
-init_exposed	Initial number of exposed individuals
-days	Number of days to simulate
-beta	Probability of transmission per contact
-sigma	Incubation rate (E → I transition)
-gamma	Recovery rate (I → R transition)
-act_rate	Average contacts per individual per day
-
-🚀 Running the Simulation
-Install dependencies:
-
-bash
-Copy
-Edit
+\subsection*{Installing Dependencies}
+\begin{lstlisting}[language=bash]
 pip install numpy pandas matplotlib
-Run the main script:
+\end{lstlisting}
 
-bash
-Copy
-Edit
-python epidemic_model.py
-This will perform 90 simulations:
+\subsection*{Running the Simulation}
 
-15 baseline (no interventions)
+Run the Python script to perform 90 simulations:
+\begin{itemize}
+    \item 15 baseline (no intervention)
+    \item 15 masking only
+    \item 15 quarantine (moderate)
+    \item 15 quarantine (strong)
+    \item 15 masking + moderate quarantine
+    \item 15 masking + strong quarantine
+\end{itemize}
 
-15 with masking
+Each run appends its summary results to \texttt{epidemic\_data.csv}.
 
-15 with quarantine (moderate)
+\section*{Example Code}
 
-15 with quarantine (strong)
-
-15 with both masking + moderate quarantine
-
-15 with both masking + strong quarantine
-
-Each run appends summary results to epidemic_data.csv.
-
-📊 Output
-CSV Output: Summary metrics from each simulation run (e.g., max infections, quarantine rates).
-
-Plot: Line chart visualizing population state transitions over time.
-
-Database Output (optional): Results saved to epidemic_data.db if save_to_db() is called.
-
-🛠️ Project Structure
-bash
-Copy
-Edit
-.
-├── epidemic_model.py         # Main simulation script
-├── DatabaseManager.py        # SQLite interface (assumed present)
-├── epidemic_data.csv         # Output of simulation runs
-├── README.md                 # This file
-🧩 Example Use
-python
-Copy
-Edit
+\begin{lstlisting}[language=Python]
 model = EpidemicModel(
     N=10000,
     init_infected=10,
@@ -98,20 +92,37 @@ model.apply_quarantine(0.75, quarantine_day=10)
 history, totals = model.sim()
 model.save_to_csv()
 model.plot_results()
-📈 Key Metrics Collected
-max_infected: Peak number of individuals exposed or infectious
+\end{lstlisting}
 
-max_quarantined: Maximum number quarantined
+\section*{Output}
 
-max_vaccinated: Maximum number vaccinated
+\begin{itemize}
+    \item \textbf{CSV File:} Summary metrics including max infections, vaccinations, quarantines
+    \item \textbf{Plot:} Time series of SEIR states and intervention statuses
+    \item \textbf{SQLite DB:} Optional save of each simulation run to a relational database
+\end{itemize}
 
-Daily counts of all SEIR and intervention states
+\section*{Metrics Collected}
 
-📌 Notes
-All interventions can be triggered by day or by infection threshold, but not both simultaneously.
+\begin{itemize}
+    \item Maximum infected individuals
+    \item Maximum exposed, quarantined, vaccinated individuals
+    \item Total number of individuals infected during simulation
+    \item Daily counts of all SEIR compartments
+\end{itemize}
 
-Contact reduction (social distancing) must reduce act_rate but remain > 0.
+\section*{Project Structure}
 
-📜 License
-This project is open-source and available under the MIT License.
+\begin{verbatim}
+.
+├── epidemic_model.py         # Main simulation script
+├── DatabaseManager.py        # SQLite interface (assumed present)
+├── epidemic_data.csv         # Output of simulation runs
+├── README.tex                # This file
+\end{verbatim}
 
+\section*{License}
+
+This project is released under the MIT License.
+
+\end{document}
