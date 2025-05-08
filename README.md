@@ -1,81 +1,91 @@
-\documentclass[11pt]{article}
-\usepackage{geometry}
-\usepackage{listings}
-\usepackage{graphicx}
-\usepackage{xcolor}
-\usepackage{hyperref}
-\geometry{margin=1in}
-\title{Epidemic Simulation Model Documentation}
-\author{}
-\date{}
+# Epidemic Simulation Model
 
-\begin{document}
+This project implements a Python-based SEIR epidemic simulation to model the spread of disease under various public health interventions. It supports quarantine, masking, vaccination, and social distancing, with flexible trigger mechanisms and customizable parameters. The simulation results can be saved to CSV or an SQLite database, and visualized using matplotlib.
 
-\maketitle
+---
 
-\section*{Overview}
+## Features
 
-This document describes a Python-based SEIR epidemic simulation model that includes optional interventions such as quarantine, masking, vaccination, and social distancing. The simulation is designed to track epidemic spread and evaluate the effectiveness of interventions across multiple simulation runs.
+- **SEIR Compartments**: Models individuals transitioning through:
+  - Susceptible (S)
+  - Exposed (E)
+  - Infectious (I)
+  - Recovered (R)
+- **Public Health Interventions**:
+  - Quarantine (based on time or infection count)
+  - Masking (reduces transmission rate)
+  - Vaccination (rollout after delay at a specified rate)
+  - Social Distancing (reduces contact rate)
+- **Simulation Outputs**:
+  - CSV export for statistical analysis
+  - SQLite integration using `DatabaseManager.py`
+  - Plotting of SEIR trends and intervention effects
 
-\section*{Features}
+---
 
-\begin{itemize}
-    \item \textbf{SEIR States:} Susceptible, Exposed, Infectious, Recovered
-    \item \textbf{Intervention Options:}
-    \begin{itemize}
-        \item Quarantine (triggered by time or infection threshold)
-        \item Masking (with adjustable effectiveness)
-        \item Vaccination (with start time and rollout rate)
-        \item Social Distancing (reduces contact rate)
-    \end{itemize}
-    \item \textbf{Data Output:}
-    \begin{itemize}
-        \item CSV and SQLite database output
-        \item Time-series plot of compartment values
-    \end{itemize}
-\end{itemize}
+## Simulation Parameters
 
-\section*{Simulation Parameters}
+| Parameter         | Description                              |
+|------------------|------------------------------------------|
+| `N`              | Total population size                    |
+| `init_infected`  | Initial number of infectious individuals |
+| `init_exposed`   | Initial number of exposed individuals    |
+| `days`           | Number of days to simulate               |
+| `beta`           | Transmission probability per contact     |
+| `sigma`          | Incubation rate (E → I transition)       |
+| `gamma`          | Recovery rate (I → R transition)         |
+| `act_rate`       | Daily contact rate per individual        |
 
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Parameter} & \textbf{Description} \\
-\hline
-\texttt{N} & Total population size \\
-\texttt{init\_infected} & Initial number of infected individuals \\
-\texttt{init\_exposed} & Initial number of exposed individuals \\
-\texttt{days} & Duration of the simulation in days \\
-\texttt{beta} & Probability of infection per contact \\
-\texttt{sigma} & Transition rate from exposed to infectious \\
-\texttt{gamma} & Recovery rate \\
-\texttt{act\_rate} & Number of contacts per individual per day \\
-\hline
-\end{tabular}
+---
 
-\section*{Usage Instructions}
+## Interventions
 
-\subsection*{Installing Dependencies}
-\begin{lstlisting}[language=bash]
+Each intervention has parameters for activation (by day or infection threshold):
+
+- **Quarantine**: Probabilistically isolates infectious individuals.
+- **Masking**: Reduces the effective transmission probability.
+- **Vaccination**: Immunizes a portion of the population each day.
+- **Social Distancing**: Lowers the number of daily contacts per person.
+
+---
+
+## Installation
+
+Make sure you have Python 3.7+ installed.
+
+Install dependencies using pip:
+
+```bash
 pip install numpy pandas matplotlib
-\end{lstlisting}
+```
 
-\subsection*{Running the Simulation}
+---
 
-Run the Python script to perform 90 simulations:
-\begin{itemize}
-    \item 15 baseline (no intervention)
-    \item 15 masking only
-    \item 15 quarantine (moderate)
-    \item 15 quarantine (strong)
-    \item 15 masking + moderate quarantine
-    \item 15 masking + strong quarantine
-\end{itemize}
+## Usage
 
-Each run appends its summary results to \texttt{epidemic\_data.csv}.
+Run the simulation:
 
-\section*{Example Code}
+```bash
+python epidemic_model.py
+```
 
-\begin{lstlisting}[language=Python]
+This performs 90 simulations:
+- 15 baseline (no interventions)
+- 15 with masking
+- 15 with quarantine (moderate)
+- 15 with quarantine (strong)
+- 15 with masking + moderate quarantine
+- 15 with masking + strong quarantine
+
+Each run appends its summary results to `epidemic_data.csv`.
+
+---
+
+## Example Code
+
+```python
+from epidemic_model import EpidemicModel
+
 model = EpidemicModel(
     N=10000,
     init_infected=10,
@@ -87,42 +97,59 @@ model = EpidemicModel(
     act_rate=7
 )
 
-model.apply_masking(0.5, mask_day=10)
-model.apply_quarantine(0.75, quarantine_day=10)
-history, totals = model.sim()
-model.save_to_csv()
+model.apply_masking(mask_effectiveness=0.5, mask_day=10)
+model.apply_quarantine(q_prob=0.75, quarantine_day=10)
+
+history_df, totals_df = model.sim()
+model.save_to_csv("epidemic_data.csv")
 model.plot_results()
-\end{lstlisting}
+```
 
-\section*{Output}
+---
 
-\begin{itemize}
-    \item \textbf{CSV File:} Summary metrics including max infections, vaccinations, quarantines
-    \item \textbf{Plot:} Time series of SEIR states and intervention statuses
-    \item \textbf{SQLite DB:} Optional save of each simulation run to a relational database
-\end{itemize}
+## Output Files
 
-\section*{Metrics Collected}
+- `epidemic_data.csv`: Summary of all simulation runs
+- `epidemic_data.db` (optional): SQLite database with full history
+- Line plots showing dynamics of each compartment over time
 
-\begin{itemize}
-    \item Maximum infected individuals
-    \item Maximum exposed, quarantined, vaccinated individuals
-    \item Total number of individuals infected during simulation
-    \item Daily counts of all SEIR compartments
-\end{itemize}
+---
 
-\section*{Project Structure}
+## Project Structure
 
-\begin{verbatim}
+```
 .
-├── epidemic_model.py         # Main simulation script
-├── DatabaseManager.py        # SQLite interface (assumed present)
-├── epidemic_data.csv         # Output of simulation runs
-├── README.tex                # This file
-\end{verbatim}
+├── epidemic_model.py       # Main simulation class
+├── DatabaseManager.py      # SQLite handling (must be implemented)
+├── epidemic_data.csv       # Aggregated simulation output
+├── README.md               # Project documentation
+```
 
-\section*{License}
+---
 
-This project is released under the MIT License.
+## Key Metrics Tracked
 
-\end{document}
+- Total and peak values of:
+  - Infected (E + I)
+  - Quarantined
+  - Vaccinated
+- Daily compartment counts: S, E, I, R, Q, V
+
+---
+
+## Simulation Scenarios
+
+The script includes multiple runs under different interventions. You can modify or extend the simulation loop to test additional combinations of policy scenarios.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## Contact
+
+For questions or contributions, feel free to open an issue or submit a pull request.
+
